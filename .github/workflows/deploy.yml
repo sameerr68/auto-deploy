@@ -41,10 +41,14 @@ jobs:
           echo "${{ secrets.EC2_SSH_KEY }}" > private_key.pem
           chmod 600 private_key.pem
 
+      - name: Create deploy directory on EC2
+        run: |
+          ssh -i private_key.pem -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "mkdir -p /home/${{ secrets.EC2_USER }}/app-deploy"
+
       - name: Copy deploy script to EC2
         run: |
-          scp -i private_key.pem -o StrictHostKeyChecking=no deploy.sh ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/ec2-user/app-deploy/deploy.sh
+          scp -i private_key.pem -o StrictHostKeyChecking=no deploy.sh ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USER }}/app-deploy/deploy.sh
 
       - name: Run deploy script on EC2
         run: |
-          ssh -i private_key.pem -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "chmod +x /home/ec2-user/app-deploy/deploy.sh && /home/ec2-user/app-deploy/deploy.sh"
+          ssh -i private_key.pem -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "chmod +x /home/${{ secrets.EC2_USER }}/app-deploy/deploy.sh && /home/${{ secrets.EC2_USER }}/app-deploy/deploy.sh"
